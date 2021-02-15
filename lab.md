@@ -61,7 +61,7 @@ if __name__ == '__main__':
     main(args)
 ```
 
-It is important that the script is run as the *root* user (using `sudo`) to allow it to capture packets from the system's network interfaces.
+The script must be run as the *root* user (using `sudo`) to allow it to capture packets from the system's network interfaces.
 If you save your changes and try to run the script without any additional arguments you will receive the following error:
 
 ```bash
@@ -73,7 +73,7 @@ As shown in the second line, the script needs a positional argument called *ifac
 If you are unsure about what interface to use, then pick the one connected to your default gateway.
 The flags enclosed in square-brackets shows that the script also accepts some optional arguments that will be covered in due course.
 
-Most of this script simply parses all of the user provided arguments from the command line and configures Scapy accordingly.
+Most of this script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
 The `pkt_callback()` function is the most important part of the script in this exercise; this function is called by the `sniff()` function whenever it captures a packet.
 As you can, the function simply contains the `pass` keyword which results in the function doing nothing.
 
@@ -85,7 +85,7 @@ def pkt_callback(pkt):
 ```
 
 Save your changes.
-We will test the script by sending some ICMP *echo request* or ping messages to Google; to ensure that the `sniff()` function only processess IPv4 ICMP datagrams, we will use a filter.
+We will test the script by sending some ICMP *echo request* or ping messages to Google; to ensure that the `sniff()` function only processes IPv4 ICMP datagrams, we will use a filter.
 The `-f FILTER` argument is used to pass tcpdump-like filters to Scapy; to filter out everything except IPv4 ICMP datagrams the filter `ip and icmp` should be used:
 
 ```bash
@@ -173,5 +173,13 @@ We can access this object within the interactive console; do this by typing `pkt
 >>>
 ```
 
-Using the Python built-in `type()`, we can see that the object is of type `scapy.plist.PacketList` which is essentially a Python list with some extras bolted on by Scapy.
-For example, we can 
+Using the `type()` built-in, we can see that `pkts` is an object of type `scapy.plist.PacketList` which is essentially a Python `list()` object with some extras bolted on by Scapy.
+For exampe, we can determine the *length* of the `pkts` object, using the `len()` built-in, which will give us the number of packets that were captured by `sniff()`:
+
+```python
+>>> len(pkts)
+1
+>>>
+```
+
+Recall that we limited the capture to just a single packet so a length of 1 is expected.
