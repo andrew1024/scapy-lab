@@ -75,7 +75,7 @@ The flags enclosed in square-brackets shows that the script also accepts some op
 
 Most of this script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
 The `pkt_callback()` function is the most important part of the script in this exercise; this function is called by the `sniff()` function whenever it captures a packet.
-As you can, the function simply contains the `pass` keyword which results in the function doing nothing.
+As you can see, the function simply contains the `pass` keyword which results in the function doing nothing.
 
 Change the `pkt_callback()` function to the following:
 
@@ -183,3 +183,10 @@ For exampe, we can determine the *length* of the `pkts` object, using the `len()
 ```
 
 Recall that we limited the capture to just a single packet so a length of 1 is expected.
+As mentioned previously, this object behaves similarly to a normal `list()` in Python so we can use slicer notation to access it's member objects:
+
+```python
+>>> pkts[0]
+<Ether  dst=REDACTED src=REDACTED type=IPv4 |<IP  version=4 ihl=5 tos=0x0 len=84 id=54026 flags=DF frag=0 ttl=64 proto=icmp chksum=0xf1aa src=192.168.16.34 dst=216.58.204.238 |<ICMP  type=echo-request code=0 chksum=0xc7f1 id=0x6 seq=0x1 |<Raw  load='~\x97*`\x00\x00\x00\x00\xba<\x0e\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567' |>>>>
+>>>
+```
