@@ -100,7 +100,7 @@ ping -4 google.com
 
 Upon running this command, the terminal within which the script is executing should begin printing messages:
 
-```bash
+```
 Captured a packet!
 Captured a packet!
 Captured a packet!
@@ -143,7 +143,7 @@ Begin by undoing your changes to the script and saving it (replace the print sta
 
 <!--- SCAPY LAYERS EXPLANATION --->
 
-Use the `-i` flag to enter *interactive mode* in Scapy which will allow us to dissect the packet interactively.
+Additionally, use the `-i` flag to enter *interactive mode* which will allow us to dissect the packet interactively:
 
 ```bash
 sudo python3 lab.py iface -f ip and icmp -c 1 -i
