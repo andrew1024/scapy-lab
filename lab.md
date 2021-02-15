@@ -23,7 +23,6 @@ def main(args):
 
     if args.filter:
         pkt_filter = ' '.join(args.filter)
-
     else:
         pkt_filter = None
 
@@ -45,7 +44,6 @@ if __name__ == '__main__':
 
         if count == 0:
             print(f'{__file__}: ignoring packet count argument', file=stderr)
-
         elif count < 0:
             raise ArgumentTypeError('COUNT must be a positive integer')
 
@@ -54,7 +52,6 @@ if __name__ == '__main__':
     parser = ArgumentParser()
 
     parser.add_argument('iface', help='name of network interface to capture packets from')
-
     parser.add_argument('-c', '--count', type=count_type, default=0)
     parser.add_argument('-f', '--filter', nargs='*')
     parser.add_argument('-i', '--interact', action='store_true')
