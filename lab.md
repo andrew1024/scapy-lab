@@ -101,7 +101,7 @@ ip route show default
 ## Packet callback function
 
 Most of the script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
-The first function called `pkt_callback()` is (as the name suggests) a callback function.
+The top `pkt_callback()` function is (as the name suggests) a callback function.
 
 ### Callback functions 101
 
