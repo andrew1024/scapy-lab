@@ -115,7 +115,7 @@ def add(a, b):
 ```
 
 The function `add()` simply returns whatever the + operator does on *a* and *b* whenever it is called.
-Callback functions become interesting when we consider an additional function like the following:
+We can use `add()` as a **callback function** if we consider an addition function like the following:
 
 ```python
 def do_something(func, x, y):
@@ -133,9 +133,9 @@ For example, what would happen if we pass `add()` as the *func* argument to `do_
 >>>
 ```
 
-In this example, we passed `add()` as a **callback function** to `do_something()` (the caller function)!
+In this example, we passed `add()` as a **callback function** to `do_something()` (the **caller function**)!
 
-Importantly, callback functions *must* be usable in the way that caller function uses it, for example if we define:
+Importantly, callback functions **must** be usable in the way that caller function uses it, for example if we define:
 
 ```python
 def bad_func(a, b, c):
