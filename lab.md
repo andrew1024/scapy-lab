@@ -89,7 +89,7 @@ Upon running the command, you should receive output similar to:
 
 Notice the line containing `link/ether` for the *enp0s3* interface which means Ethernet (IEEE 802.3) framing is used as the encapsulation type in the link layer for the interface.
 Importantly, this means that applications performing packet sniffing on this interface will be presented with Ethernet frames by the Linux kernel.
-If you have a WiFi card that has been placed into monitor mode on your system, then you will see `link/ieee802.11/radiotap` instead where IEEE 802.11 frames will be presented to any sniffing applications.
+If you have a WiFi card that has been placed into monitor mode on your system, then you will see `link/ieee802.11/radiotap` instead as IEEE 802.11 frames will be presented to any sniffing applications.
 
 If you are unsure about what interface to use, then pick the one connected to your default gateway.
 You can find your default gateway by executing the following command:
