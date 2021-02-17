@@ -134,7 +134,7 @@ For example, what would happen if we pass `add()` as the *func* argument to `do_
 ```
 
 In this example, we passed `add()` as a **callback function** to `do_something()` (the **caller function**)!
-Notice the lack of parentheses around the `add()` function when it is passed to `do_something()` otherwise we would be passing whatever `add()` returns.
+Notice the lack of parentheses around the `add()` function when it is passed to `do_something()` otherwise we would be passing whatever `add()` returns instead of the function itself.
 
 Importantly, callback functions **must** be usable in the way that caller function uses it, for example if we define:
 
