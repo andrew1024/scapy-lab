@@ -1,11 +1,10 @@
-# Scapy
+# Capturing Packets with Scapy
 
 This is an introduction to the Scapy package in Python for network packet capturing and generation.
-To do this lab you must be using a UNIX-like OS and Python 3.6 or newer.
+To do this lab you must be using Linux (anything mainstream should work out of the box) and Python 3.6 or newer.
 
-## Packet  Capturing
+To begin this part of the tutorial, grab a copy of the `lab.py` Python script:
 
-To begin this part of the tutorial, create a new blank Python file called `lab.py` and paste in the following:
 
 ```python
 from argparse import ArgumentParser, ArgumentTypeError
@@ -61,19 +60,102 @@ if __name__ == '__main__':
     main(args)
 ```
 
-The script must be run as the *root* user (using `sudo`) to allow it to capture packets from the system's network interfaces.
-If you save your changes and try to run the script without any additional arguments you will receive the following error:
+The script must be run as the *root* user (ideally using `sudo`) to allow Scapy to capture packets from the system's network interfaces.
+Additionally, if you try to run the script without any additional arguments, you will receive the following error:
 
 ```bash
 usage: arp_scan.py [-h] [-c COUNT] [-f [FILTER [FILTER ...]]] [-i] iface
 arp_scan.py: error: the following arguments are required: iface
 ```
 
-As shown in the second line, the script needs a positional argument called *iface* which is name of the network interface that you want to capture packets from.
-If you are unsure about what interface to use, then pick the one connected to your default gateway.
+## Network Interface Selection
+
+As shown in the second line of the error message above, the script needs a positional argument called *iface* which is the name of the network interface that you want to capture packets from.
 The flags enclosed in square-brackets shows that the script also accepts some optional arguments that will be covered in due course.
 
-Most of this script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
+To obtain a list of installed network interfaces, execute the following command:
+
+```bash
+$ ip link show
+```
+
+Upon running the command, you should receive output similar to:
+
+```bash
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+    link/ether de:ad:be:ef:ca:fe brd ff:ff:ff:ff:ff:ff
+```
+
+Notice the line containing `link/ether` which means Ethernet (IEEE 802.3) framing is used as the encapsulation type in the link layer.
+
+Importantly, this means that applications performing packet sniffing on this interface will be presented with Ethernet frames by the Linux kernel.
+
+If you have a WiFi card connected to your system that has been placed into monitor mode, then you will see `link/ieee802.11/radiotap` instead where IEEE 802.11 frames will be presented instead.
+
+If you are unsure about what interface to use, then pick the one connected to your default gateway.
+You can find your default gateway using the following command:
+
+```bash
+ip route show default
+```
+
+## Packet callback function
+
+Most of the Python script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
+
+The first function defined in the script called `pkt_callback()` is (as the name suggests) a callback function.
+
+### Callback functions 101
+
+Callback functions are, by themselves, not particularly special.
+For example, consider the following:
+
+```python
+def add(a, b):
+    return a + b
+```
+
+In this example, `add()` simply returns whatever the + operator does on *a* and *b* when it is called.
+
+Callback functions become interesting when we consider an additional function like the following:
+
+```python
+def do_something(func, x, y):
+    return func(x, y)
+```
+
+The first argument *func* of `do_something()` **calls** whatever the value of *func* is.
+Therefore, in order to use `do_something()` we need to something **callable** in addition to the objects *x* and *y*.
+
+For example, what happens if we pass `add()` as the *func* argument to `do_something()`?
+
+```python
+>>> do_something(add, 3, 4)
+7
+>>>
+```
+
+In this example, we passed `add()` as a callback function to `do_something()` (the caller function)!
+
+Importantly, callback functions *must* be usable in the way that caller function uses it, for example if we define:
+
+```python
+def bad_func(a, b, c):
+    return a + b + c
+```
+
+And use it as the callback function for `do_something()` then Python raises an exception:
+
+```python
+>>> do_something(bad_func, 3, 4)
+TypeError: bad_func() missing 1 required positional argument: 'c'
+>>>
+```
+
+### The `pkt_callback()` function
+
 The `pkt_callback()` function is the most important part of the script in this exercise; this function is called by the `sniff()` function whenever it captures a packet.
 As you can see, the function simply contains the `pass` keyword which results in the function doing nothing.
 
@@ -187,6 +269,13 @@ As mentioned previously, this object behaves similarly to a normal `list()` in P
 
 ```python
 >>> pkts[0]
-<Ether  dst=REDACTED src=REDACTED type=IPv4 |<IP  version=4 ihl=5 tos=0x0 len=84 id=54026 flags=DF frag=0 ttl=64 proto=icmp chksum=0xf1aa src=192.168.16.34 dst=216.58.204.238 |<ICMP  type=echo-request code=0 chksum=0xc7f1 id=0x6 seq=0x1 |<Raw  load='~\x97*`\x00\x00\x00\x00\xba<\x0e\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567' |>>>>
+<Ether  dst=de:ad:be:ef:ca:fe src=de:ad:be:ef:ca:fe type=IPv4 |<IP  version=4 ihl=5 tos=0x0 len=84 id=54026 flags=DF frag=0 ttl=64 proto=icmp chksum=0xf1aa src=192.168.16.34 dst=216.58.204.238 |<ICMP  type=echo-request code=0 chksum=0xc7f1 id=0x6 seq=0x1 |<Raw  load='~\x97*`\x00\x00\x00\x00\xba<\x0e\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567' |>>>>
 >>>
+```
+
+This output is Scapy's compressed human-readable view of the entire packet/frame beginning at layer 2.
+Repeat the same line as before, except save the output to a variable called `my_pkt`.
+
+```python
+>>> my_pkt = pkts[0]
 ```
