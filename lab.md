@@ -89,13 +89,11 @@ Upon running the command, you should receive output similar to:
 ```
 
 Notice the line containing `link/ether` which means Ethernet (IEEE 802.3) framing is used as the encapsulation type in the link layer.
-
 Importantly, this means that applications performing packet sniffing on this interface will be presented with Ethernet frames by the Linux kernel.
-
 If you have a WiFi card connected to your system that has been placed into monitor mode, then you will see `link/ieee802.11/radiotap` instead where IEEE 802.11 frames will be presented instead.
 
 If you are unsure about what interface to use, then pick the one connected to your default gateway.
-You can find your default gateway using the following command:
+You can find your default gateway by executing the following command:
 
 ```bash
 ip route show default
@@ -103,9 +101,8 @@ ip route show default
 
 ## Packet callback function
 
-Most of the Python script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
-
-The first function defined in the script called `pkt_callback()` is (as the name suggests) a callback function.
+Most of the script simply parses all of the user-provided arguments from the command line and configures Scapy accordingly.
+The first function called `pkt_callback()` is (as the name suggests) a callback function.
 
 ### Callback functions 101
 
@@ -117,8 +114,7 @@ def add(a, b):
     return a + b
 ```
 
-In this example, `add()` simply returns whatever the + operator does on *a* and *b* when it is called.
-
+The function `add()` simply returns whatever the + operator does on *a* and *b* whenever it is called.
 Callback functions become interesting when we consider an additional function like the following:
 
 ```python
@@ -126,10 +122,10 @@ def do_something(func, x, y):
     return func(x, y)
 ```
 
-The first argument *func* of `do_something()` **calls** whatever the value of *func* is.
-Therefore, in order to use `do_something()` we need to something **callable** in addition to the objects *x* and *y*.
+The first argument of `do_something()` **calls** whatever the value of *func* is.
+Therefore, in order to use `do_something()` we need to pass something **callable** in addition to the objects *x* and *y*.
 
-For example, what happens if we pass `add()` as the *func* argument to `do_something()`?
+For example, what would happen if we pass `add()` as the *func* argument to `do_something()`?
 
 ```python
 >>> do_something(add, 3, 4)
@@ -137,7 +133,7 @@ For example, what happens if we pass `add()` as the *func* argument to `do_somet
 >>>
 ```
 
-In this example, we passed `add()` as a callback function to `do_something()` (the caller function)!
+In this example, we passed `add()` as a **callback function** to `do_something()` (the caller function)!
 
 Importantly, callback functions *must* be usable in the way that caller function uses it, for example if we define:
 
@@ -146,7 +142,7 @@ def bad_func(a, b, c):
     return a + b + c
 ```
 
-And use it as the callback function for `do_something()` then Python raises an exception:
+And use it as the callback function for `do_something()` then Python will raise an exception:
 
 ```python
 >>> do_something(bad_func, 3, 4)
