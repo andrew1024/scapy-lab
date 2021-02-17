@@ -88,7 +88,7 @@ Upon running the command, you should receive output similar to:
     link/ether de:ad:be:ef:ca:fe brd ff:ff:ff:ff:ff:ff
 ```
 
-Notice the line containing `link/ether` for the *enp0s3* interfaces which means Ethernet (IEEE 802.3) framing is used as the encapsulation type in the link layer.
+Notice the line containing `link/ether` for the *enp0s3* interface which means Ethernet (IEEE 802.3) framing is used as the encapsulation type in the link layer for the interface.
 Importantly, this means that applications performing packet sniffing on this interface will be presented with Ethernet frames by the Linux kernel.
 If you have a WiFi card that has been placed into monitor mode on your system, then you will see `link/ieee802.11/radiotap` instead where IEEE 802.11 frames will be presented to any sniffing applications.
 
@@ -153,10 +153,11 @@ TypeError: bad_func() missing 1 required positional argument: 'c'
 
 ### The `pkt_callback()` function
 
-The `pkt_callback()` function is the most important part of the script in this exercise; this function is called by the `sniff()` function whenever it captures a packet.
-As you can see, the function simply contains the `pass` keyword which results in the function doing nothing.
+The `pkt_callback()` function is the most important part of the script in this exercise; the function is called by Scapy's `sniff()` function.
+The *pkt* argument for the function is Scapy's representation of the packet that the `sniff()` function passes whenever it calls `pkt_callback()`.
+As you can see in the script, the function simply contains the `pass` keyword which results in the function doing nothing with the packet.
 
-Change the `pkt_callback()` function to the following:
+Begin by changing the `pkt_callback()` function of the script to the following:
 
 ```python
 def pkt_callback(pkt):
@@ -164,14 +165,16 @@ def pkt_callback(pkt):
 ```
 
 Save your changes.
-We will test the script by sending some ICMP *echo request* or ping messages to Google; to ensure that the `sniff()` function only processes IPv4 ICMP datagrams, we will use a filter.
-The `-f FILTER` argument is used to pass tcpdump-like filters to Scapy; to filter out everything except IPv4 ICMP datagrams the filter `ip and icmp` should be used:
+We will test the script by sending some ICMP *echo request* (ping) datagrams to Google.
+
+To ensure that `pkt_callback()` is only called for our desired type of packet, we will make use of the script's `-f FILTER` argument where `FILTER` is any valid Berkely Packet Filter string.
+To limit our sniffing to IPv4 ICMP packets, we will use `ip and icmp` as our BPF:
 
 ```bash
 sudo python3 lab.py iface -f ip and icmp
 ```
 
-While the script is running, open another terminal session and use the ping command to send the *echo request* datagrams:
+While the script is running, open another terminal session and use the `ping` command:
 
 ```bash
 ping -4 google.com
@@ -191,7 +194,7 @@ Captured a packet!
 ```
 
 We have successfully captured our first packets with Scapy!
-Use CTRL+C to stop the ping command and script from executing.
+Use **CTRL+C** to stop the `ping` command and script from executing.
 
 ```
 PING google.com (216.58.212.238) 56(84) bytes of data.
@@ -208,7 +211,7 @@ rtt min/avg/max/mdev = 25.823/28.180/30.570/1.679 ms
 Notice that the message has been twice for each *echo request* to account for the corresponding *echo reply* that Google send in response.
 
 What if we only want to capture the first 4 packets which match our filter?
-To do this we can pass the `-c COUNT` argument, where COUNT is the number of packets that should be captured.
+To do this we can pass the `-c COUNT` argument, where `COUNT` is the number of packets that should be captured.
 Repeat the previous exercise using `-c 4` to try it out.
 
 ```bash
@@ -216,7 +219,12 @@ sudo python3 lab.py iface -f ip and icmp -c 4
 ```
 
 Printing the same message for each packet gets old quickly, let's change the script so it gives us more information about each packet.
-Begin by undoing your changes to the script and saving it (replace the print statement in the `pkt_callback()` function with the `pass` keyword).
+Begin by undoing your changes to the script and saving it:
+
+```python
+def pkt_callback(pkt):
+    pass
+```
 
 ### Layers in Scapy
 
