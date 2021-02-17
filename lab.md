@@ -208,7 +208,7 @@ PING google.com (216.58.212.238) 56(84) bytes of data.
 rtt min/avg/max/mdev = 25.823/28.180/30.570/1.679 ms
 ```
 
-Notice that the message has been twice for each *echo request* to account for the corresponding *echo reply* that Google send in response.
+Notice that the message has been twice for each *echo request* sent to account for the corresponding *echo reply* that Google sent back in response.
 
 What if we only want to capture the first 4 packets which match our filter?
 To do this we can pass the `-c COUNT` argument, where `COUNT` is the number of packets that should be captured.
