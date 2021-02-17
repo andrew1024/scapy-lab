@@ -30,12 +30,8 @@ def main(args):
 if __name__ == '__main__':
 
     def count_type(count):
-        try:
-            count = int(count)
-        except TypeError as e:
-            raise ArgumentTypeError('COUNT must be a positive integer') from e
 
-        if count == 0:
+        if int(count) == 0:
             print(f'{__file__}: ignoring packet count argument', file=stderr)
         elif count < 0:
             raise ArgumentTypeError('COUNT must be a positive integer')
