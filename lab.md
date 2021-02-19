@@ -166,7 +166,7 @@ def pkt_callback(pkt):
 Save your changes.
 We will test the script by sending some ICMP *echo request* (ping) datagrams to Google.
 
-To ensure that `pkt_callback()` is only called for our desired type of packet, we will make use of the script's `-f FILTER` argument where `FILTER` is any valid Berkely Packet Filter string.
+To ensure that `pkt_callback()` is only called for our desired type of packet, we will make use of the script's `-f FILTER` argument where `FILTER` is any valid [Berkely Packet Filter](https://biot.com/capstats/bpf.html) string.
 To limit our sniffing to IPv4 ICMP packets, we will use `ip and icmp` as our BPF:
 
 ```bash
@@ -271,7 +271,7 @@ For exampe, we can determine the *length* of the `pkts` object, using the `len()
 Recall that we limited the capture to just a single packet so a length of 1 is expected.
 As mentioned previously, this object behaves similarly to a normal `list()` in Python so we can use slicer notation to access it's member objects:
 
-```python
+```
 >>> pkts[0]
 <Ether  dst=de:ad:be:ef:ca:fe src=de:ad:be:ef:ca:fe type=IPv4 |<IP  version=4 ihl=5 tos=0x0 len=84 id=54026 flags=DF frag=0 ttl=64 proto=icmp chksum=0xf1aa src=192.168.16.34 dst=216.58.204.238 |<ICMP  type=echo-request code=0 chksum=0xc7f1 id=0x6 seq=0x1 |<Raw  load='~\x97*`\x00\x00\x00\x00\xba<\x0e\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567' |>>>>
 >>>
@@ -282,4 +282,115 @@ Repeat the same line as before, except save the output to a variable called `my_
 
 ```python
 >>> my_pkt = pkts[0]
+```
+
+We can call the `summary()` method on `my_pkt` to get a more concise overview of the packet.
+
+```python
+>>> my_pkt.summary()
+'Ether / IP / ICMP 192.168.16.34 > 142.250.178.14 echo-request 0 / Raw'
+>>>
+```
+
+As we should already know, encapsulation is widely used within computer networks whereby lower layer protocols encapsulate higher layer protocols and payloads.
+
+Scapy lets us access different layers of a packet using slicer notation.
+We can determine the number of accessible layers within a packet by calling the `layers()` method on `my_pkt` along with `len()`.
+
+```python
+>>> len(my_pkt.layers())
+4
+>>>
+```
+
+Next we'll print out the name of each layer using a for loop and the `name()` method.
+
+```python
+>>> for index in range(4):
+...     print(my_pkt[index].name)
+... 
+Ethernet
+IP
+ICMP
+Raw
+>>>
+```
+
+Recall that if our network interface says `link/ether` then the Linux kernel will present our application with network traffic in the form of Ethernet frames.
+We can also see the higher layer IP and ICMP protocols that comprise the payload of the frame.
+The Raw layer isn't an actual layer but is instead used as a catchall for anything that Scapy couldn't parse, for exaaple, fragments of data in a larger stream.
+
+By taking a closer look at the `layers()` method we can see that it actually returns a list of Scapy classes.
+
+```
+>>> my_pkt.layers()
+[<class 'scapy.layers.l2.Ether'>, <class 'scapy.layers.inet.IP'>, <class 'scapy.layers.inet.ICMP'>, <class 'scapy.packet.Raw'>]
+>>>
+```
+
+Because the script contains the line:
+
+```python
+>>> from scapy.all import *
+```
+
+we can access these classes directly without specifying their namespaces.
+Furthermore, Scapy lets us use them as a more convenient way of accessing and slicing the different layers of a packet.
+For example, we can access the ICMP layer of the packet by typing:
+
+```
+>>> my_pkt[ICMP]
+<ICMP  type=echo-request code=0 chksum=0x31e7 id=0x2 seq=0x1 |<Raw  load='#\xa6/`\x00\x00\x00\x00\xac<\x08\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567' |>>
+>>>
+```
+
+If we look at the header structure of an ICMP *echo-request*, we can see that it contains several fields.
+
+![ICMP header](https://www.frozentux.net/iptables-tutorial/chunkyhtml/images/icmp-echo-headers.jpg)
+
+We can use the `show()` method to see each the values of each field.
+
+```
+>>> my_pkt[ICMP].show()
+###[ ICMP ]### 
+  type      = echo-request
+  code      = 0
+  chksum    = 0x31e7
+  id        = 0x2
+  seq       = 0x1
+###[ Raw ]### 
+     load      = '#\xa6/`\x00\x00\x00\x00\xac<\x08\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./01234567'
+>>>
+```
+
+Furthermore, Scapy exposes the values of fields as properties of the object.
+For example, we can access the Sequence Number in the ICMP layer of `my_pkt` using:
+
+```python
+>>> my_pkt[ICMP].seq
+1
+>>>
+```
+
+We can also see every field that is accessible using the `fields` property:
+
+```python
+>>> my_pkt[ICMP].fields
+{'type': 8, 'code': 0, 'chksum': 12775, 'id': 2, 'seq': 1, 'ts_ori': None, 'ts_rx': None, 'ts_tx': None, 'gw': None, 'ptr': None, 'reserved': None, 'length': None, 'addr_mask': None, 'nexthopmtu': None, 'unused': None}
+>>>
+```
+
+## Challenge
+
+Using what you have covered, modify the script so that for each IPv4 TCP packet received the following is printed:
+
+1. Source and Destination IP addresses
+2. Packet TTL
+3. Source and Destination TCP port numbers
+4. TCP flags
+
+A line similar to the following should be printed for each packet:
+
+```
+192.168.16.34:43948 -> 192.168.16.100:8006 TTL: 64, Flags: S
 ```
