@@ -386,9 +386,9 @@ We can also see every field that is accessible using the `fields` property:
 
 Using what you have covered, modify the script so that for each IPv4 TCP packet received the following is printed:
 
-1. Source and Destination IP addresses
+1. Source and destination IP addresses
 2. Packet TTL
-3. Source and Destination TCP port numbers
+3. Source and destination TCP port numbers
 4. TCP flags
 
 A line similar to the following should be printed for each packet:
