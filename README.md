@@ -1,4 +1,4 @@
-# Capturing Packets with Scapy
+# Capturing Packets with Scapy (Lab 1)
 
 This is an introduction to the Scapy package in Python for network packet capturing and generation.
 To do this lab you must be using Linux (anything mainstream should work out of the box) and Python 3.6 or newer.
